@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <title>BioVitals by BioZ4Life</title>
+
+  <style>
+    .cDiv {
+      background-color: lightblue;
+      text-align: center;
+    }
+
+	tr.spaceUnder>td {
+	  padding-bottom: 1em;
+	}  
+	
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <h2>Parâmetros</h2>
+      <div>
+        <img src="logo.png" class="App-logo" alt="logo" />
+      </div>
+      <h2>Resultados</h2>
+    </header>
+
+    <div class="content">
+      <div class="sidebarLeft">
+        <div>
+          <label htmlFor="gender">Sexo:</label>
+          <select id="gender">
+            <option value="M">MASCULINO</option>
+            <option value="F">FEMININO</option>
+          </select>
+        </div>
+        
+        <div>
+          <label htmlFor="age">Idade:</label>
+          <input id="age" size="5" type="number" min="1" max="110" defaultValue="50"/>
+        </div>
+
+        <div>
+          <label htmlFor="weight">Peso:</label>
+          <input id="weight" size="5" type="number" min="10" max="250" defaultValue="75"/>
+        </div>
+      
+        <div>
+          <label htmlFor="height">Altura:</label>
+          <input id="height" size="5" type="number" min="100" max="230" defaultValue="170"/>
+        </div>
+
+        <div>
+          <label htmlFor="position">Posição:</label>
+          <select id="position">
+            <option value="UP">Sentado</option>
+            <option value="DOWN">Deitado</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="contentCenter">
+        <video  hidden id="webcam" width="640" height="480"></video>
+        <canvas id="canvas" width="640" height="480">
+		</canvas> -->
+          
+        <div class="container-buttons">
+          <button id="btnStart" type="button" onclick="btnStartClick();" disabled>Iniciar</button>
+          <button id="btnStop" type="button" onclick="btnStopClick();" disabled>Pausar</button>
+        </div>
+      </div>
+
+      <div class="sidebarRight">
+        <ul>
+          <li>
+            <span class="icon-">
+              <img src="coracao.png">
+            </span>
+            <p id="valBPM">.. bpm</p>
+          </li>
+          <li>
+            <span class="icon-">
+              <img src="pressao.png">
+            </span>
+            <p id="valSYSDIA">.../.. mmHg</p>
+          </li>
+          <li>
+            <span class="icon-">
+              <img src="oxigenio.png">
+            </span>
+            <p id="valSPO2">..%</p>
+          </li>
+          <li>
+            <span class="icon-">
+              <img src="respiratorio.png">
+            </span>
+            <p id="valRPM">... rpm</p>
+          </li>
+          <li>
+            <span class="icon-">
+              <img src="temperatura.png">
+            </span>
+            <p>(em breve)</p>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+     <footer>
+<!--      <div class="menuLeft">
+        <div class="footerIconHome">
+          <img src="icon-home.svg" alt="Home">
+        </div>
+        <div class="footerIconConfig">
+          <img src="icon-config.svg" alt="Config">
+        </div>
+      </div>
+      <div class="logout">
+        <img src="logohorizontal-fundoazul.png" alt="Logout">
+        <div class="footerIconAlign">
+          <img src="icon-logout.svg" alt="Logout" class="icon-logout">
+        </div>
+      </div>
+ -->
+     </footer>
+ 
+   </div>
+
+
+  <div id="chart-div" class="cDiv">
+
+	<h2 style="font: 25px sans-serif">BioZ4Life (C) 2021</h2>
+
+	<hr>
+	
+    <table>
+      <tbody>
+        <tr>
+		  <td><span style="font: 15px sans-serif">Pontuação Geral</span></td>
+		  <td><span style="font: 25px sans-serif"></span></td>
+        </tr>
+        <tr>
+		  <td><canvas id="chart-wellnessScore" width="400" height="300"></canvas></td>
+          <td><span id="txt-Summary" style="font: 15px sans-serif"></span></td>
+        </tr>
+        <tr class="spaceUnder">
+		  <td><span id="value-wellnessScore" style="font: 45px sans-serif"></span></td>
+		  <td><span style="font: 25px sans-serif"></span></td>
+        </tr>
+      </tbody>
+    </table>
+
+	<hr>
+	
+    <table>
+      <tbody>
+        <tr>
+          <td><span style="font: 15px sans-serif">Freq.Cardíaca (HR)</span></td>
+          <td><span style="font: 15px sans-serif">Freq.Respiratória (rpm)</span></td>
+          <td><span style="font: 15px sans-serif">P.A. Sistólica (mmHg)</span></td>
+          <td><span style="font: 15px sans-serif">P.A. Diastólica (mmHg)</span></td>
+        </tr>
+        <tr>
+          <td><canvas id="chart-BPM" width="400" height="300"></canvas></td>
+          <td><canvas id="chart-RPM" width="400" height="300"></canvas></td>
+          <td><canvas id="chart-BP-SYS" width="400" height="300"></canvas></td>
+          <td><canvas id="chart-BP-DIA" width="400" height="300"></canvas></td>
+        </tr>
+        <tr class="spaceUnder">
+          <td><span id="value-BPM" style="font: 45px sans-serif"></span></td>
+          <td><span id="value-RPM" style="font: 45px sans-serif"></span></td>
+          <td><span id="value-BP-SYS" style="font: 45px sans-serif"></span></td>
+          <td><span id="value-BP-DIA" style="font: 45px sans-serif"></span></td>
+        </tr>
+      </tbody>
+    </table>
+
+	<hr> 
+	
+    <table>
+      <tbody>
+        <tr>
+          <td><span style="font: 15px sans-serif">Variabilidade F.C. (HRV)</span></td>
+          <td><span style="font: 15px sans-serif">Saturação Oxigênio (%SpO2)</span></td>
+          <td><span style="font: 15px sans-serif">Nível Stress (1-5)</span></td>
+          <td><span style="font: 15px sans-serif">Massa Corporal (IMC)</span></td>
+        </tr>
+        <tr>
+          <td><canvas id="chart-HRV" width="400" height="300"></canvas></td>
+          <td><canvas id="chart-SPO2" width="400" height="300"></canvas></td>
+          <td><canvas id="chart-stressRisk" width="400" height="300"></canvas></td>
+          <td><canvas id="chart-bodyMassIndex" width="400" height="300"></canvas></td>
+        </tr>
+        <tr class="spaceUnder">
+          <td><span id="value-HRV" style="font: 45px sans-serif"></span></td>
+          <td><span id="value-SPO2" style="font: 45px sans-serif"></span></td>
+          <td><span id="value-stressRisk" style="font: 45px sans-serif"></span></td>
+          <td><span id="value-bodyMassIndex" style="font: 45px sans-serif"></span></td>
+        </tr>
+      </tbody>
+    </table>
+
+	<hr> 
+	
+    <table>
+      <tbody>
+        <tr>
+          <td><span style="font: 15px sans-serif">Função Cardíaca (L/min)</span></td>
+          <td><span style="font: 15px sans-serif">Risco Cardiovascular (%)</span></td>
+          <td><span style="font: 15px sans-serif">Risco Infarto (%)</span></td>
+          <td><span style="font: 15px sans-serif">Risco AVC (%)</span></td>
+        </tr>
+        <tr>
+          <td><canvas id="chart-cardiacWorkload" width="400" height="300"></canvas></td>
+          <td><canvas id="chart-cardiacDiseaseRisk" width="400" height="300"></canvas></td>
+          <td><canvas id="chart-heartAttackRisk" width="400" height="300"></canvas></td>
+          <td><canvas id="chart-strokeRisk" width="400" height="300"></canvas></td>
+        </tr>
+        <tr class="spaceUnder">
+          <td><span id="value-cardiacWorkload" style="font: 45px sans-serif"></span></td>
+          <td><span id="value-cardiacDiseaseRisk" style="font: 45px sans-serif"></span></td>
+          <td><span id="value-heartAttackRisk" style="font: 45px sans-serif"></span></td>
+          <td><span id="value-strokeRisk" style="font: 45px sans-serif"></span></td>
+        </tr>
+		
+      </tbody>
+    </table>
+
+  </div>
+
+  <script type="text/javascript" src="gauge.min.js"></script>
+  <script type="text/javascript" src="biovitals.js"></script>
+  <script type="text/javascript" src="dashboard.js"></script>
+
+  <script>
+    //---------------------------------------------------------------------------------------
+    // Init()
+    //---------------------------------------------------------------------------------------
+    console.log("loading webpage...");
+	let demo = null;
+    
+    let btnStart = document.getElementById("btnStart");
+    let btnStop = document.getElementById("btnStop");
+    btnStart.disabled = true;
+    btnStop.disabled = true;
+    
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    console.log("queryString="+queryString);
+    
+    btnStart.disabled = false;
+    btnStop.disabled = false;
+
+    const apikey = urlParams.get('apikey');
+    console.log("apikey="+apikey);
+    
+    const license = urlParams.get('license');
+    console.log("license="+license);
+
+	var params = {
+	  "webcamId" : "webcam",
+	  "canvasId" : "canvas",
+	  "classifierPath" : "haarcascade_frontalface_alt.xml",
+	  "targetFps" : 30,
+	  "windowSize" : 6,
+	  "rppgInterval" : 250,
+	  "apikey" : apikey,
+	  "license" : license,
+	  "showVitals" : false,
+	  "showResults" : true,
+	  "durationTime" : 30,
+	  "btnStop" : btnStop
+	};
+	  
+    console.log("creating BioVitals instance...");
+	demo = new BioVitals(params);
+    
+	
+    var lstGender = document.getElementById('gender');
+    var txtAge = document.getElementById('age');
+    var txtWeight = document.getElementById('weight');
+    var txtHeight = document.getElementById('height');
+    var lstPosition = document.getElementById('position');
+
+	var ready = loadOpenCv(OPENCV_URI);
+    
+	// up and running ....
+	
+	
+    //---------------------------------------------------------------------------------------
+    // Start()
+    //---------------------------------------------------------------------------------------
+	function btnStartClick() {
+	  console.log("click on btnStart");
+	  
+	  var gender = lstGender.options[lstGender.selectedIndex].value;
+	  var position = lstPosition.options[lstPosition.selectedIndex].value;
+
+	  console.log("gender:" + gender);
+	  console.log("age:" + txtAge.value);
+	  console.log("weight:" + txtWeight.value);
+	  console.log("height:" + txtHeight.value);
+	  console.log("position:" + position);
+	  
+	  var person = {
+		"gender" : gender,
+		"age" : txtAge.value,
+		"weight" : txtWeight.value,
+		"height" : txtHeight.value,
+		"position" : position
+	  };
+
+	  demo.init(person);
+	}
+
+    //---------------------------------------------------------------------------------------
+    // Stop()
+    //---------------------------------------------------------------------------------------
+	function btnStopClick() {
+	  console.log("click on btnStop");
+	  
+	  var results = demo.stop();
+	  console.log(results);
+
+	  document.getElementById("valBPM").innerHTML = results.BPM + " bpm";
+	  document.getElementById("valSYSDIA").innerHTML = results.SYS + "/" + results.DIA + " mmHg";
+	  document.getElementById("valSPO2").innerHTML = results.SPO2 + "%";
+	  document.getElementById("valRPM").innerHTML = results.RPM + " rpm";
+	  
+	  // statistics
+	  gauge_wellnessScore.set(results.wellnessScore);
+	  
+	  gauge_BPM.set(results.BPM);
+	  gauge_RPM.set(results.RPM);
+	  gauge_BP_SYS.set(results.SYS);
+	  gauge_BP_DIA.set(results.DIA);
+	  
+	  gauge_HRV.set(results.sdnn);
+	  gauge_SPO2.set(results.SPO2);
+	  gauge_stressRisk.set(results.stressRisk);
+	  gauge_bodyMassIndex.set(results.bodyMassIndex);
+	  
+	  gauge_cardiacWorkload.set(results.cardiacWorkload);
+	  gauge_cardiacDiseaseRisk.set(results.cardiacDiseaseRisk);
+	  gauge_heartAttackRisk.set(results.heartAttackRisk);
+	  gauge_strokeRisk.set(results.strokeRisk);
+	  
+	  document.getElementById("txt-Summary").innerHTML = results.summary;
+	}
+
+  </script>
+</body>
+
+</html>

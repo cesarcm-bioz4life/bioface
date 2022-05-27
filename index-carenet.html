@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>BioVitals by BioZ4Life</title>
+</head>
+
+<body>
+  <img src="./bioz4life.png">
+  
+  <h1>BioVitals by BioZ4Life</h1>
+  </br>
+  
+  <label for="gender">Sexo</label>
+  <select id="gender">
+  	<option value="M">MASCULINO</option>
+  	<option value="F">FEMININO</option>
+  </select>
+  
+  <label for="age">Idade</label>
+  <input id="age" size="5" type="number" min="1" max="110" value="50"/>
+  
+  <label for="weight">Peso</label>
+  <input id="weight" size="5" type="number" min="10" max="250" value="75"/>
+  
+  <label for="height">Altura</label>
+  <input id="height" size="5" type="number" min="100" max="230" value="170"/>
+  
+  <label for="position">Posição</label>
+  <select id="position">
+  	<option value="UP">Sentado</option>
+  	<option value="DOWN">Deitado</option>
+  </select>
+
+  </br>
+  </br>
+  
+  <button id="btnStart" type="button" onclick="btnStartClick();" disabled>Iniciar</button>
+  <button id="btnStop" type="button" onclick="btnStopClick();" disabled>Pausar</button>
+  
+  </br>
+  </br>
+
+  <div style="display: inline-block">
+    <video  id="webcam" width="640" height="480"></video>
+    <canvas id="canvas" width="640" height="480"></canvas>
+  </div>
+
+  <script>
+	const PROFILE_GENDER = "M";
+	const PROFILE_AGE = 50;
+	const PROFILE_WEIGHT = 75;
+	const PROFILE_HEIGHT = 170;
+	const PROFILE_POSITION = "UP";
+
+	//---------------------------------------------------------------------------------------
+	// class()
+	//---------------------------------------------------------------------------------------
+	class BioVitals {
+	  constructor(webcamId, canvasId, classifierPath, targetFps, windowSize, rppgInterval, apikey) {
+		this.webcamId = webcamId;
+		this.canvasId = canvasId,
+		this.classifierPath = classifierPath;
+		this.streaming = false;
+		this.faceValid = false;
+		this.targetFps = targetFps;
+		this.windowSize = windowSize;
+		this.rppgInterval = rppgInterval;
+
+		this.apikey = apikey;
+		this.userid = "DEMO";
+		
+		this.gender = PROFILE_GENDER;
+		this.age = PROFILE_AGE;
+		this.weight = PROFILE_WEIGHT;
+		this.height = PROFILE_HEIGHT;
+		this.position = PROFILE_POSITION;
+	  }
+	
+	//---------------------------------------------------------------------------------------
+	// stream()
+	//---------------------------------------------------------------------------------------
+	  async startStreaming() {
+		try {
+		  this.stream = await navigator.mediaDevices.getUserMedia({
+			video: {
+			  facingMode: 'user',
+			  width: {exact: this.webcamVideoElement.width},
+			  height: {exact: this.webcamVideoElement.height}
+			},
+			audio: false
+		  });
+		} catch (e) {
+		  console.log(e);
+		}
+
+		if (!this.stream) {
+		  throw new Error('Could not obtain video from webcam.');
+		}
+		
+		// Set srcObject to the obtained stream
+		this.webcamVideoElement.srcObject = this.stream;
+		
+		// Start the webcam video stream
+		this.webcamVideoElement.play();
+		this.streaming = true;
+		
+		return new Promise(resolve => {
+		  // Add event listener to make sure the webcam has been fully initialized.
+		  this.webcamVideoElement.oncanplay = () => {
+			resolve();
+		  };
+		});
+	  }
+
+	//---------------------------------------------------------------------------------------
+	// init()
+	//---------------------------------------------------------------------------------------
+	  async init(gender, age, weight, height, position) {
+		this.webcamVideoElement = document.getElementById(this.webcamId);
+		
+		try {
+		  await this.startStreaming();
+		  this.webcamVideoElement.width = this.webcamVideoElement.videoWidth;
+		  this.webcamVideoElement.height = this.webcamVideoElement.videoHeight;
+		} catch (e) {
+		  console.log(e);
+		}
+	  }
+
+	//---------------------------------------------------------------------------------------
+	// stop()
+	//---------------------------------------------------------------------------------------
+	  stop() {
+		if (this.webcam) {
+		  this.webcamVideoElement.pause();
+		  this.webcamVideoElement.srcObject = null;
+		}
+		if (this.stream) {
+		  this.stream.getVideoTracks()[0].stop();
+		}
+		this.streaming = false;
+	  }
+
+	}
+	
+  </script>
+
+  <script>
+	//---------------------------------------------------------------------------------------
+	// Init()
+	//---------------------------------------------------------------------------------------
+	let demo = null;
+	
+	let btnStart = document.getElementById("btnStart");
+	let btnStop = document.getElementById("btnStop");
+	btnStart.disabled = true;
+	btnStop.disabled = true;
+	
+	const queryString = window.location.search;
+	const urlParams = new URLSearchParams(queryString);
+	console.log(queryString);
+	
+	btnStart.disabled = false;
+	btnStop.disabled = false;
+
+	const apikey = urlParams.get('apikey');
+	console.log("apikey="+apikey);
+	
+	let instance = new BioVitals("webcam", "canvas", "HAARCASCADE_URI", 30, 6, 250, apikey);
+	demo = instance;
+	
+	var lstGender = document.getElementById('gender');
+	var txtAge = document.getElementById('age');
+	var txtWeight = document.getElementById('weight');
+	var txtHeight = document.getElementById('height');
+	var lstPosition = document.getElementById('position');
+	
+	function btnStartClick() {
+	  console.log("btnStart");
+	  
+	  var gender = lstGender.options[lstGender.selectedIndex].value;
+	  var position = lstPosition.options[lstPosition.selectedIndex].value;
+
+	  console.log("gender:" + gender);
+	  console.log("age:" + txtAge.value);
+	  console.log("weight:" + txtWeight.value);
+	  console.log("height:" + txtHeight.value);
+	  console.log("position:" + position);
+	  
+	  demo.init(gender, txtAge.value, txtWeight.value, txtHeight.value, position);
+	}
+
+	function btnStopClick() {
+	  console.log("btnStop");
+	  demo.stop();
+	}
+	
+  </script>
+</body>
+
+</html>
+

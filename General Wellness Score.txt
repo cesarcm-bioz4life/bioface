@@ -1,0 +1,94 @@
+SDNN => RR variability 40-80ms
+RMSSD & PNN50 => NN variability (vagus modulation)
+RMSSD => index of parasympathetic activity 20-50ms
+PNN50 => nbr of differences > 50ms
+
+
+0) wellnessScore			0-40[red] 40-7-[yellow] 70-100[green]
+
+1) BPM						60-100bpm		HRV 40-60ms[green] 10-20[red] 20-30[yellow]
+2) RPM 						12-25rpm
+3) BP-SYS					90-140mg/Hg
+4) BP-DIA 					60-90mg/Hg
+
+5) HRV						RR variability 40-80ms
+
+6) SPO2						>95%
+7) stressRisk				1-2[green] 3[yellow] 4-5[red]
+8) bodyMassIndex			0-18kg/m2[yellow] 18-25[green] 25-30[yellow] 30-40[red]
+
+9) cardiacWorkload			3-3.9db[green] 3.9-4.2[yellow] 4.2-5.0[red]
+10) cardiacDiseaseRisk		0-10%[green] 10-15[yellow] 15-30[red]	=> blood pressure + bmi + sdnn + age
+11) heartAttackRisk			0-3%[green] 3-4[yellow] 4-7[red]		=> blood pressure + bmi + sdnn + age (men >45 and women > 55)
+12) strokeRisk				0-7%[green] 7-10[yellow] 10-15[red]		=> blood pressure + bmi + sdnn + age
+
+
+[HRV]
+Heart rate variability increases during relaxing and recovering activities and decreases during stress. 
+Accordingly, HRV is typically higher when the heart is beating slowly and decreases as the heart beats more quickly. 
+In other words, heart rate and HRV have a generally inverse relationship.
+
+There is also a significant number of “average” health seekers and a number of people rehabilitating from serious injuries, illnesses, or diseases. 
+The average HRV score for Elite HRV users is 59.3 (on a 1-100 scale) with 75% of users' HRV scores falling between 46.3 and 72.0.
+
+Over the past few decades, research has shown a relationship between low HRV and worsening depression or anxiety. 
+A low HRV is even associated with an increased risk of death and cardiovascular disease.
+People who have a high HRV may have greater cardiovascular fitness and be more resilient to stress.
+
+
+[CARDIAC DISEASE RISK]
+f your risk score was calculated to be more than 15%, you are thought to be at high risk of getting heart, stroke or blood vessel disease 
+(cardiovascular disease) in the next five years. That means if everyone with a risk score of more than 15% was grouped together, about 1 in 7 
+would get cardiovascular disease within the next 5 years.
+
+If your risk score is between 10—15%, you are thought to be at moderate risk of getting cardiovascular disease in the next five years.
+
+If your risk score is less than 10%, you are thought to be at low risk of getting cardiovascular disease in the next five years.
+
+
+[BLOOD PRESSURE] + BMI > 25
+According to the most recent guidelines for the management of hypertension, BP is classified as:
+normal for systolic BP (SBP) <120 mmHg and diastolic BP (DBP) <80 mmHg); 
+pre-hypertension for SBP between 129 and 139 mmHg and/or DBP between 80 and 89 mmHg; 
+stage 1 hypertension for SBP between 140 and 159 mmHg and/or DBP between 90 and 99 mmHg and; 
+stage 2 hypertension for SBP values ≥160 mmHg and/or DBP ≥100 mmHg9.
+
+The top number (systolic) minus the bottom number (diastolic) gives you your pulse pressure. 
+For example, if your resting blood pressure is 120/80 millimeters of mercury (mm Hg), your pulse pressure is 40 — which is considered a normal 
+and healthy pulse pressure. Generally, a pulse pressure greater than 40 mm Hg is abnormal.
+
+Measuring your pulse pressure may help your doctor predict if you're at risk for a heart event, including a heart attack or stroke. 
+If your pulse pressure is greater than 60 it's considered a risk factor for cardiovascular disease, especially for older adults.
+
+
+		Beats = (int) bufferAvgB;
+		Breath = (int) bufferAvgBr;
+
+		//estimations to estimate the blood pressure
+		double ROB = 18.5;
+		double ET = (364.5 - 1.23 * Beats);
+		double BSA = 0.007184 * (Math.pow(Weight, 0.425)) * (Math.pow(Height, 0.725));
+		double SV = (-6.6 + (0.25 * (ET - 35)) - (0.62 * Beats) + (40.4 * BSA) - (0.51 * Age));
+		double PP = SV / ((0.013 * Weight - 0.007 * Age - 0.004 * Beats) + 1.307);
+		double MPP = Q * ROB;
+
+		SP = (int) (MPP + 3 / 2 * PP);
+		DP = (int) (MPP - PP / 3);
+      
+	  
+    public void setBloodPressure(double heartRate, int age, String sex, int weight, int height, String position) {
+        double R = 18.5; // Average R = 18.31; // Vascular resistance // Very hard to calculate from person to person
+        double Q = (sex.equalsIgnoreCase("Male") || sex.equalsIgnoreCase("M"))?5:4.5; // Liters per minute of blood through heart
+        double ejectionTime = (!position.equalsIgnoreCase("Laying Down"))?386-1.64*heartRate:364.5-1.23*heartRate; // WAS ()?376-1.64*heartRate:354.5-1.23*heartRate; // ()?sitting:supine
+        double bodySurfaceArea = 0.007184*(Math.pow(weight,0.425))*(Math.pow(height,0.725));
+        double strokeVolume = -6.6 + 0.25*(ejectionTime-35) - 0.62*heartRate + 40.4*bodySurfaceArea - 0.51*age; // Volume of blood pumped from heart in one beat
+        double pulsePressure = strokeVolume / ((0.013*weight - 0.007*age-0.004*heartRate)+1.307);
+        double meanPulsePressure = Q*R;
+
+        systolicPressure = (int) (meanPulsePressure + 3/2*pulsePressure);
+        diastolicPressure = (int) (meanPulsePressure - pulsePressure/3);
+
+        mTextViewBloodPressure.setText("Blood Pressure: " + systolicPressure + "/" + diastolicPressure);
+        saveSharedPreference("systolicPressure",systolicPressure);
+        saveSharedPreference("diastolicPressure",diastolicPressure);
+    }	  
